@@ -44,9 +44,7 @@ function compare(source, update){
     let return_value = {update:[],text2:update,differ:0,total:0};
     
     let source_arr = source.split("\n");
-    console.log(source_arr);
     let update_arr  = update.split("\n");
-    console.log(update_arr);
     let diff,total,result;
     //i 代表 update_arr j代表source_arr
     for(let i=0,j=0;j<source_arr.length && i<update_arr.length ;i++,j++){
