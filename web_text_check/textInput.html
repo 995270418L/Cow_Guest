@@ -141,10 +141,69 @@
    };
 	//upload file end 
 
+	// //加精
+	// function compare(source,update){
+	// 	let html = "";  //输出到text2上的内容
+	// 	let location = [];   //记录位置（每行不同字符串的位置）
+	// 	//对不同的字符进行标记		
+	// 	let source_arr = source.split("\n");
+	// 	let update_arr  = update.split("\n");
+	// 	let diff = 0,total,result;
+	// 	//i 代表 update_arr j代表source_arr
+	// 	for(let i=0,j=0;j<source_arr.length && i<update_arr.length ;i++,j++){
+	// 		let up_words = update_arr[i];
+	// 		let sr_words = source_arr[i];
+
+	// 		//保持始终对称，不会应为换行符而影响
+	// 		if(up_words == "" && sr_words != ""){
+	// 			j--;
+	// 			continue;
+	// 		}else if(up_words != "" && sr_words == ""){
+	// 			i--;
+	// 			continue;
+	// 		}
+
+	// 		//这里开始匹配
+	// 		//不懂正则意思 ? http://www.cnblogs.com/afarmer/archive/2011/08/29/2158860.html : 略过
+	// 		let re = new RegExp("(?=.*?)[^"+ sr_words +"](?=.*?)","gi");
+	// 		while( (result = re.exec(up_words))!= null ){
+	// 			//找到不同字符的位置
+	// 			location.push(result.index);
+	// 			diff++;
+	// 		}
+	// 		console.log(up_words.length);
+	// 		console.log("location: " + location);
+	// 		for(let i=0;i<up_words.length;i++){
+	// 			if(location.indexOf(i) != -1 && up_words[i] != " " && up_words[i] != "\n"){
+	// 				location.shift();
+	// 				html += "<span style=\"color: red\">" + up_words[i] + "</span>" ;
+	// 			}else if(up_words[i] == " " && location.indexOf(i) != -1){
+	// 				location.shift();
+	// 				html += "<div id=\"space\">&nbsp;</div>";
+	// 			}else{
+	// 				html += up_words[i];
+	// 			}
+	// 		}
+	// 		html += "<br/>";
+	// 		location = [];
+	// 		console.log("location: " + location);
+    // 	}
+	// 	console.log("diff: "+ diff);
+	// 	total = update.length;
+	// 	let proportion = (1 - diff/total) * 100;
+	// 	proportion = proportion.toFixed(2);   //结果保留两位小数点
+ 	// 	let rate = proportion + "%";
+	// 	span.innerHTML = "Total words(except line break): " +total + "&nbsp;words&nbsp;&nbsp;&nbsp;";
+	// 	span.innerHTML += "Diff words: " + diff +"&nbsp;words&nbsp;&nbsp;&nbsp;";
+	// 	span.innerHTML += "Repeat: " + rate;
+	// 	text2.innerHTML = html;
+	// }
+
+
 	//加精
 	function compare(source,update){
 		let html = "";  //输出到text2上的内容
-		let location = [];   //记录位置（每行不同字符串的位置）
+		let location = new Map();   //使用map来精确记录位置和值
 		//对不同的字符进行标记		
 		let source_arr = source.split("\n");
 		let update_arr  = update.split("\n");
@@ -153,39 +212,39 @@
 		for(let i=0,j=0;j<source_arr.length && i<update_arr.length ;i++,j++){
 			let up_words = update_arr[i];
 			let sr_words = source_arr[i];
-
-			//保持始终对称，不会应为换行符而影响
-			if(up_words == "" && sr_words != ""){
-				j--;
-				continue;
-			}else if(up_words != "" && sr_words == ""){
-				i--;
-				continue;
-			}
-
 			//这里开始匹配
-			//不懂正则意思 ? http://www.cnblogs.com/afarmer/archive/2011/08/29/2158860.html : 略过
-			let re = new RegExp("(?=.*?)[^"+ sr_words +"](?=.*?)","gi");
-			while( (result = re.exec(up_words))!= null ){
-				//找到不同字符的位置
-				location.push(result.index);
-				diff++;
+			//不懂正则意思 ? http://www.cnblogs.com/afarmer/archive/2011/08/29/2158860.html : 略过   有缺陷
+			// let re = new RegExp("(?=.*?)[^"+ sr_words +"](?=.*?)","gi");
+			// while( (result = re.exec(up_words))!= null ){  
+			// 	//找到不同字符的位置
+			// 	console.log(typeof result.index);   //number
+			// 	console.log(typeof result[0]);      //string
+			// 	location.set(result.index,result[0]);
+			// 	diff++;
+			// }
+			for(let j=0,k=0;j<up_words.length && k<sr_words.length ;j++,k++){
+				if(up_words.length > sr_words.length && up_words[j] !== sr_words[k]){
+					location.set(j,up_words[j]);
+					k--;
+					diff++;
+				}
+			}
+			for(let b of location){
+				console.log(b);
 			}
 			console.log(up_words.length);
-			console.log("location: " + location);
+			console.log("location: " + location.size);
 			for(let i=0;i<up_words.length;i++){
-				if(location.indexOf(i) != -1 && up_words[i] != " " && up_words[i] != "\n"){
-					location.shift();
+				if(location.get(i) !== null && location.get(i) === up_words[i] &&  up_words[i] != " " && up_words[i] != "\n"){
 					html += "<span style=\"color: red\">" + up_words[i] + "</span>" ;
-				}else if(up_words[i] == " " && location.indexOf(i) != -1){
-					location.shift();
+				}else if(up_words[i] == " " && location.get(i) != null){
 					html += "<div id=\"space\">&nbsp;</div>";
 				}else{
 					html += up_words[i];
 				}
 			}
 			html += "<br/>";
-			location = [];
+			location.clear();  //清空匹配信息
 			console.log("location: " + location);
     	}
 		console.log("diff: "+ diff);
