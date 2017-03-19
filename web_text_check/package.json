@@ -1,0 +1,16 @@
+{
+  "name": "web_text_check",
+  "version": "1.0.0",
+  "description": "'牛客－web文本检查工具'",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "floder",
+  "license": "ISC",
+  "dependencies": {
+    "koa-multer": "^1.0.1",
+    "koa-router": "^7.0.1",
+    "koa2": "^2.0.0-alpha.7"
+  }
+}

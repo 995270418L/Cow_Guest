@@ -1,0 +1,175 @@
+<!doctype html>
+<html>
+<head>
+<title>文本比较工具</title>
+<style type="text/css">
+	body{
+		margin:5px 50px 0 50px;
+		padding-bottom:5px;
+	}
+	h3{
+		margin:1px 0px 10px 0px;
+		font-family: Arial,sans-serif;
+		font-size:25px;
+		color:#369;
+	}
+	p{
+		margin:1px auto;
+		font-family: Arial,sans-serif;
+		font-size:30px;
+		color:#839C;
+		display:inline-block
+	}
+	table{
+		width:100%;
+		height:100%;
+
+	}
+	td{
+		font-family: 楷体 sans-serif;
+		font-size: 20px;
+		width:50%;
+	}
+	#text1:hover{
+		cursor:not-allowed;
+	}
+	#text1{
+		border:solid 1px #464646;
+		width:100%;
+		height:700px;
+		overflow:scroll;
+	}
+	#text2{
+		border:solid 1px #464646;
+		width:100%;
+		height:700px;
+		overflow:scroll;
+	}
+	#space{
+		display:inline-block;
+		width:15px;
+		height:22px;
+		background-color:cadetblue;
+	}
+
+</style>
+</head>
+<body>
+	<table>
+		<tr>
+			<td >
+				<div>
+					<p>原始文件内容:
+					 </p>
+					<div id="text1"></div>
+				</div>
+				<form id="tf">
+					<input type="file" id="upload_file" name="upload">
+					<input type="submit" value="提交原文件" >
+				</form>
+			</td>
+			<td >
+				<div >
+					<p>更新文件内容:</p>
+					<div id="text2"></div>
+				</div>
+				<form id="tf2">
+					<input type="file" id="upload_file2" name="upload">
+					<input type="submit" value="提交更新" >
+				</form>
+			</td>
+		</tr>
+	</table>
+<h3><span id="rate"></span></h3>
+<script type="text/javascript">
+
+	//get the dom
+   let text1 = document.getElementById('text1');
+   let text2 = document.getElementById('text2');
+   let upload_file = document.getElementById('upload_file');
+   let upload_file2 = document.getElementById('upload_file2');
+   let form = document.getElementById('tf');
+   let form2 = document.getElementById('tf2');
+   let span = document.getElementById('rate');
+
+   //deal the dom event
+   //upload file start
+   form.onsubmit = function(){
+   		console.log('submit');
+   		let name = upload_file.value.split('\\').pop();
+   		if(!name.endsWith('.txt')){
+   			alert('请上传文本文件!');
+   			return false;
+   		}
+		let data = new FormData(form);    //put the data into FormData(HTML5 need)
+		let xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function(){
+			if(xhr.readyState == 4 && xhr.status >= 200){
+				console.log('receive data1');
+				text1.innerText = xhr.responseText;
+			}
+		}
+		xhr.open('post','/postText1',true);
+		xhr.send(data);
+		return false;
+   };
+   form2.onsubmit = function(){
+   		console.log('submit2');
+   		let name = upload_file2.value.split('\\').pop();  //get the upload file name (\home\liu\demo.txt) in the ubuntu
+		if(!text1.innerText){
+			alert("请上传原文件");
+			return false;
+		}
+
+   		if(!name.endsWith('.txt') && !name.endsWith('.js')){    // it can be change 
+   			alert('请上传文本文件!');
+   			return false;
+   		}
+		let data = new FormData(form2);
+		let xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function(){                //xhr's readystatechange event 1,2,3,4 
+			if(xhr.readyState == 4 && xhr.status >= 200){
+				console.log('receive data');
+				let text = xhr.responseText;   //return json data
+				console.log(text);
+				text = JSON.parse(text);       //parse json data
+				let proportion = ( 1-(text.differ / text.total)) * 100;   //canculate the rate of similar
+				proportion = proportion.toFixed(2);
+				let rate = proportion + "%";
+				span.innerHTML = "Total words(except line break): " + text.total + "&nbsp;words&nbsp;&nbsp;&nbsp;";
+				span.innerHTML += "Diff words: " + text.differ +"&nbsp;words&nbsp;&nbsp;&nbsp;";
+				span.innerHTML += "Repeat: " + rate;
+				let value1 = text1.innerText;
+				console.log("value1:" + value1);
+				let value2 = text.text2;    //get the text2's value
+				console.log("value2:" + value2);
+				if(value2){
+					let update = text.update.join(" ").split(" ");   //transform it to array(aim to use method of array)
+					console.log("update: " + update);  
+					let html = "";
+					for(let b of value2){
+						if(update.indexOf(b) != -1){
+							html += "<span style=\"color: red\">" + b + "</span>" ;
+							update.shift();   //delete origin 
+						}else if(b == "\n"){
+							html += "<br/>";
+						}else if(b == " "){
+							html += "<div id=\"space\">&nbsp;</div>"
+						}else{
+							html += b;
+						}
+					}
+					text2.innerHTML = html;
+				}
+			}
+		}
+		xhr.open('post','/postText2',true);
+		xhr.send(data);
+		return false;
+   };
+	//upload file end 
+
+
+</script>
+</body>
+</html>
