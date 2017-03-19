@@ -15,6 +15,7 @@
 	npm install 
 	node index.js
 	打开浏览器: http://127.0.0.1:3000
+demo.txt为原文件，demo(copy).txt为更新的文件(仅供测试)，只测试了chrome浏览器，绝对不要用IE8版本以下的浏览器
 
 项目还需继续完善，比如前端添加在线匹配功能(边输入边匹配)，针对英文的特殊匹配，行间匹配等等
 由于前端技术不太行，所以如有更多bug欢迎put request
